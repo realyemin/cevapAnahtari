@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Cevap Anahtarı v1.0</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>  
+var rangeValues =
+{
+    "1": "A",
+    "2": "A-B",
+    "3": "A-B-C",
+    "4": "A-B-C-D",
+    "5": "A-B-C-D-E"
+};
+$(function () {
+
+    // sayfa yüklenirken başlangıç değeri ayarı
+    $('#rangeText').text(rangeValues[$('#secenekSayisi').val()]);
+    $('#rangeValLabel').text($('#olcek').val());
+    // setup an event handler 
+    $('#secenekSayisi').on('input change', function () {
+        $('#rangeText').text(rangeValues[$(this).val()]);
+    });
+
+});
+function cevapAnahtari()
+{
+	var c = document.getElementById("myCanvas"); 
+	var ctx = c.getContext("2d");
+//$("#form").submit();
+	//başlangıç değişkenleri
+	var soruSayisi=Number($("#soruSayisi").val());
+	var secenekSayisi=Number($("#secenekSayisi").val());
+	var sutunSayisi=Number($("#sutunSayisi").val());
+	var olcek=Number($("#olcek").val());
+	if(soruSayisi>0 && secenekSayisi>0 && olcek!="")
+	{	
+	//canvas en boy ayarı
+	ctx.canvas.height = 500; 
+    ctx.canvas.width = 600;
+	//ölçeklendirme(tümü)
+	ctx.scale(olcek, olcek); 
+	//yazı ayarı
+	ctx.font = "20px Arial";
+	var yazi=$("#baslik").val().length;
+	var yaziMesafe=((secenekSayisi*sutunSayisi*32)/2)-yazi*3;
+	if($("#baslik").val()!=""){ ctx.fillText($("#baslik").val(),yaziMesafe,25); 	}
+	else{ ctx.fillText("Cevap Anahtarı",yaziMesafe,25); 	}
+	
+	var dizi=new Array("A","B","C","D","E");
+		//cember koordinatları
+		var x=56; var y=45;  var y2=45; 
+		//yazı koordinatları
+		var fx=50; var fy=52; var fy2=52;
+	//soru sayısı başlangıç değeri
+	var sayac=1;			
+			for(var j=0; j<soruSayisi; j++)
+			{
+				if(sayac<=(soruSayisi/sutunSayisi))
+				{						
+					//sorular 
+					if(sayac%100<10){ ctx.fillText((sayac++)+".",x-32,fy); }
+					else { ctx.fillText((sayac++)+".",x-42,fy); }
+					
+					for(var i=0; i<secenekSayisi; i++)
+					{ 
+						//secenekler
+					ctx.beginPath();
+					ctx.arc(x+i*32,y,15,0,2*Math.PI);
+					ctx.arc(x+i*32,y,14,0,2*Math.PI);
+					ctx.fillText(dizi[i],fx+i*32,fy);    
+					ctx.stroke();
+					ctx.beginPath();
+					}
+					fy+=32;y+=32;
+				}
+				else{			
+					//sorular 
+				if(sayac%100<10){ ctx.fillText((sayac++)+".",x+200-32,fy2); }
+				else { ctx.fillText((sayac++)+".",x+200-42,fy2); }
+				
+				for(var i=0; i<secenekSayisi; i++)
+				{ 
+					//secenekler
+				ctx.beginPath();
+				ctx.arc(x+200+i*32,y2,15,0,2*Math.PI);
+				ctx.arc(x+200+i*32,y2,14,0,2*Math.PI);
+				ctx.fillText(dizi[i],fx+200+i*32,fy2);    
+				ctx.stroke();
+				ctx.beginPath();
+				}
+				fy2+=32;y2+=32;
+				}
+				
+				
+			}
+		
+	}
+	else{ 
+	$('.modal-body').html("Soru Sayısı, Seçenek Sayısı ve Ölçek değerini boş geçmeyiniz.");
+	//modal'i tetikleyen buton
+	$("#btn").click();
+	$("#soruSayisi").focus();
+	//alert("Soru Sayısı, Seçenek Sayısı ve Ölçek değerini boş geçmeyiniz."); 
+	}
+	
+		
+}
+function indir()
+{
+	var tur="jpeg"; //varsayılan tür
+	var tur1= document.getElementById("tur1").checked
+	var tur2= document.getElementById("tur2").checked
+	if(tur1){tur="jpeg"; } else if(tur2){	tur="png"; }
+	var c = document.getElementById("myCanvas"); 
+	var link = document.getElementById('indir');  
+	link.href = c.toDataURL();
+	link.download = "cevap_"+new Date().toLocaleString()+"."+tur;
+}
+
+</script> 
+  </head>
+<body>
+<div class="container">
+  <div class="jumbotron alert alert-success">
+    <h2>Cevap Anahtarı v1.0 (BETA)</h2>      
+    <p>Bu program ile resim formatında 5 seçenekli (A,B,C,D ve E) cevap anahtarı oluşturabilirsiniz.</p>
+		<form name="form" id="form" class="">
+		<table class="table table-hover">
+			<tr>
+				<td colspan="2"><label>Başlık:</label></td>				
+				<td colspan="4"><input class="form-control" size="80" type="text" required data-toggle="tooltip" data-placement="bottom" title="Başlık" id="baslik"/></td>				
+			</tr>
+			<tr>
+				<td><label>Soru Sayısı:</label><input class="form-control" type="number" required min="1" max="100" value="1" data-toggle="tooltip" data-placement="bottom" title="Soru Sayısı" id="soruSayisi"/></td>		
+				<td><label>Seçenek Sayısı:</label><input class="form-control" type="range" required min="1" max="5" value="1" data-toggle="tooltip" data-placement="bottom" title="Seçenek Sayısı" id="secenekSayisi"/><label id="rangeText"/></td>				
+				<td><label>Sütun Sayısı:</label><input class="form-control" type="number" required min="1" max="5" value="1" data-toggle="tooltip" data-placement="bottom" title="Sütun Sayısı" id="sutunSayisi"/></td>				
+				<td>				
+					<fieldset>
+					<label for="rangeVal">Ölçek:</label>
+					<input type ="range" oninput="document.getElementById('rangeValLabel').innerHTML = this.value;"
+						required step="0.1" value="1" min="0.1" max="5" data-toggle="tooltip" data-placement="bottom" title="Ölçek" id="olcek">        
+					</input>
+					<label id="rangeValLabel"></label>
+					</fieldset>
+			</td>				
+				<td><input type="radio" class="form-control" checked="checked" id="tur1" name="tur" value="jpeg"/><label>Jpeg</label></td>
+				<td><input type="radio" class="form-control" id="tur2" name="tur" value="png"/><label>Png</label></td>
+			</tr>
+			<tr>				
+				<td colspan="2"><button class="form-control btn btn-success" type="button" onClick="cevapAnahtari()">Hazırla</button></td>
+				<td colspan="2"><button class="form-control btn btn-info"  onclick="location.href='index.html'">Temizle</button></td>				
+				<td colspan="2"><a class="form-control btn btn-danger" href="" onclick="indir()" id="indir">İndir</a></td>				
+			</tr>
+		</table>
+		</form>
+	</div>
+	<canvas id="myCanvas" width="1" height="1" style="border:1px solid #d3d3d3;">
+Tarayıcınızın HTML5 canvas etiketi desteği yok.</canvas>
+<image id="theimage"></image>
+<!-- bu buton modal'i tetiklemek için gerekli -->
+  <button id="btn" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" style="display:none"></button>
+  <!-- bu buton modal'i tetiklemek için gerekli -->
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Cevap Anahtarı v1.0</h4>
+        </div>
+        <div class="modal-body">
+          <p>This is a large modal.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
+</body>
+</html>
